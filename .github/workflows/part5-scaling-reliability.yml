@@ -1,5 +1,8 @@
 name: Part 5 Scaling Reliability CI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 on:
   push:
     paths:
@@ -25,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Prepare env file
         run: |
