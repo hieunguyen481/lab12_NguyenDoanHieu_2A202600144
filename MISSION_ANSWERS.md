@@ -303,12 +303,5 @@
 - `GET /history/student1` chạy thành công và trả đúng conversation history:
   `{"user_id":"student1","messages":[{"role":"user","content":"What is deployment?","timestamp":"2026-04-17T05:07:21.893137Z"},{"role":"assistant","content":"Deployment moves your application from local development to a reachable runtime environment.","timestamp":"2026-04-17T05:07:21.969543Z"}]}`
 
-### Validation
-- Code syntax đã được kiểm tra thành công
-- Production readiness checker pass 100%
-- App final không còn dùng in-memory state cho conversation history
-- App final đã đáp ứng đúng tinh thần yêu cầu của Part 6: production-ready, stateless, containerized, có auth, rate limit, budget guard và Redis-backed history
 
-### Notes
-- Trong quá trình hoàn thiện Part 6 có một lỗi runtime ở Docker image liên quan đến `uvicorn` import path trong container; Dockerfile đã được sửa lại để dependencies được copy đúng vào runtime image.
-- Public Railway URL hiện có trong repo là deployment đã verify ở Part 3. Nếu giảng viên yêu cầu public URL phải trỏ đúng final project Part 6, nên redeploy thư mục `06-lab-complete` lên Railway hoặc Render trước khi nộp chính thức.
+
