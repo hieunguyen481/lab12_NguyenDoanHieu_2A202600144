@@ -1,0 +1,65 @@
+name: Part 5 Scaling Reliability CI
+
+on:
+  push:
+    paths:
+      - ".github/workflows/part5-scaling-reliability.yml"
+      - "05-scaling-reliability/**"
+      - "utils/**"
+  pull_request:
+    paths:
+      - ".github/workflows/part5-scaling-reliability.yml"
+      - "05-scaling-reliability/**"
+      - "utils/**"
+  workflow_dispatch:
+
+jobs:
+  stateless-scaling-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: 05-scaling-reliability/production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare env file
+        run: |
+          cat > .env.local <<'EOF'
+          AGENT_API_KEY=test-key
+          EOF
+
+      - name: Build and start stack
+        run: docker compose up --build -d --scale agent=3
+
+      - name: Wait for load balancer health check
+        run: |
+          for i in {1..30}; do
+            if curl -fsS http://localhost:8080/health > /tmp/health.json; then
+              cat /tmp/health.json
+              exit 0
+            fi
+            echo "Waiting for service to be healthy... attempt $i"
+            sleep 5
+          done
+          echo "Service did not become healthy in time"
+          exit 1
+
+      - name: Run stateless session test
+        run: python test_stateless.py
+
+      - name: Show compose status
+        if: always()
+        run: docker compose ps
+
+      - name: Show service logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Tear down stack
+        if: always()
+        run: docker compose down -v --remove-orphans
